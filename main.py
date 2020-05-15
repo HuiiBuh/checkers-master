@@ -2,8 +2,8 @@ from server import Server
 from message import Message
 from state import *
 from threading import Thread
-import requests
-import json
+from ki_client import *
+from pi_client import *
 import time
 
 IP = "0.0.0.0"
@@ -12,9 +12,6 @@ PORT = 11111
 CURRENT_STATE = STATE_NOT_CONNECTED
 CURRENT_KI_STATE = STATE_NOT_CONNECTED
 CURRENT_IP_STATE = STATE_NOT_CONNECTED
-
-URI_KI = "https://checkersai.nebula.blue/"
-HEADER_KI = {"X-authentication-token": "NYN4BLE2GBGH8YKJMLTJY6A8XX4XEXLLZXRGU27XT2WV2GSSFT2WBQMA54UUCCSB"}
 
 # TODO CONSTANT STRINGS
 WELCOME_AND_INSTRUCT = "Initialising Completed. Please set up game configuration"
@@ -28,52 +25,23 @@ MSG_ID = {
 }
 
 
-def ping_ki():
+def check_ki():
     global CURRENT_KI_STATE
-    response = requests.get(URI_KI+"ping", headers=HEADER_KI)
-    if response.status_code == 200:
+    if ping_ki():
         CURRENT_KI_STATE = STATE_CONNECTED
 
 
-def check_configuration():
-    pass
-
-
-def check_init_chess_board():
-    pass
-
-
-def ki_init_game(difficulty: int, player_starts: bool = False):
-    params = {
-        "difficulty": difficulty,
-        "player_first": player_starts
-    }
-    response = requests.put(URI_KI+"game", headers=HEADER_KI, params=params)
-    if response.status_code == 201:
-        data = json.loads(response.text)
-        game_key = data["game_key"]
-        return game_key
-    return None
-
-
-def ki_next_move(game_key):
-    response = requests.get("%sgame/%s/move" % (URI_KI, game_key), headers=HEADER_KI)
-    if response.status_code == 200:
-        data = json.loads(response.text)
-        return data
-    return None
-
-
-def ping_ip():
+def check_ip():
     global CURRENT_IP_STATE
-    CURRENT_IP_STATE = STATE_CONNECTED
+    if ping_ip():
+        CURRENT_IP_STATE = STATE_CONNECTED
 
 
 def main():
     server.wait_for_connection(on_client_connect)
 
-    Thread(target=ping_ki).start()
-    Thread(target=ping_ip).start()
+    Thread(target=check_ki).start()
+    Thread(target=check_ip).start()
 
     while not (CURRENT_IP_STATE == STATE_CONNECTED and CURRENT_KI_STATE == STATE_CONNECTED and CURRENT_STATE == STATE_READY_FOR_SETUP):
         time.sleep(0.2)
@@ -141,6 +109,7 @@ def on_button_pressed(data):
         if CURRENT_STATE == STATE_PLAYER_PREPARE_GAME:
             if check_init_chess_board():
                 server.send_action_speak("Let the game begin")
+                server.send_action_wait()
                 # TODO API CALL K
             else:
                 server.send_action_speak("The chess board does not seem correct prepared. Try again")
@@ -167,9 +136,7 @@ def on_client_connect(client):
 
 
 def debug():
-    game_key = ki_init_game(4)
-    move = ki_next_move(game_key)
-    print(move)
+    print_pieces()
 
 if __name__ == "__main__":
     debug()

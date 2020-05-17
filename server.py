@@ -85,6 +85,9 @@ class Server:
     def send_action_reset(self):
         self.send_instruction("reset")
 
+    def send_action_move(self, origin, target, wait=True):
+        self.send_instruction("move", {"src": origin, "dest": target, "wait": wait})
+
     def wait_for_input(self):
         msg_id = 0
 

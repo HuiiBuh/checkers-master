@@ -44,7 +44,7 @@ class Client:
                 return True
             else:
                 return False
-        except Exception:
+        except Exception as e:
             return False
 
     def get_image(self):

@@ -1,4 +1,5 @@
-from src.piclient import PiClient
+#from src.piclient import PiClient
+from src.streamclient import StreamClient
 import math
 
 options = {
@@ -65,9 +66,10 @@ options = {
 
 
 # Setup the PiClient
-client = PiClient(
+client = StreamClient(
     url='https://boarddetection.nebula.blue',
-    token='uhe3xXfev3H3ehjkUswY9QWpiqzhYvH8y5YmpSvMRDoy8yFvH5LXnbY5phJ5tu88'
+    token='uhe3xXfev3H3ehjkUswY9QWpiqzhYvH8y5YmpSvMRDoy8yFvH5LXnbY5phJ5tu88',
+    stream_url="http://127.0.0.1:8000/stream.mjpg"
 )
 
 

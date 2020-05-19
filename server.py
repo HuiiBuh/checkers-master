@@ -73,6 +73,17 @@ class Server:
         message.set_data(instruction)
         self.client.send(message)
 
+    def send_interrupt(self, action, data={}):
+        instruction = {"id": self.msg_id,
+                       "type": "interrupt",
+                       "action": action,
+                       "data": data}
+        self.msg_id = self.msg_id + 1
+        message = Message()
+        message.set_type(Message.TYPE_GAMEDATA)
+        message.set_data(instruction)
+        self.client.send(message)
+
     def send_action_init(self):
         self.send_instruction("init")
 
@@ -85,8 +96,17 @@ class Server:
     def send_action_reset(self):
         self.send_instruction("reset")
 
+    def send_action_shutdown(self):
+        self.send_interrupt("shutdown")
+
+    def send_action_remove(self, origin, wait=True):
+        self.send_instruction("remove", {"src": origin, "wait": wait})
+
     def send_action_move(self, origin, target, wait=True):
         self.send_instruction("move", {"src": origin, "dest": target, "wait": wait})
+
+    def send_action_replace(self, origin, target, wait=True):
+        self.send_instruction("replace", {"src": origin, "dest": target, "wait": wait})
 
     def wait_for_input(self):
         msg_id = 0

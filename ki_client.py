@@ -33,6 +33,7 @@ def pieces_to_move(game_key, pieces):
         return data
     else:
         print(response.text)
+        print(response.status_code)
     return None
 
 
@@ -56,7 +57,8 @@ def ki_next_move(game_key):
 def make_move(game_key, origin, target):
     response = requests.post("%sgame/%s/move" % (URI_KI, game_key), headers=HEADER_KI, data=json.dumps({"origin": origin, "target": target}))
     if response.status_code == 200:
-        return True
+        print(response.text)
+        return json.loads(response.text)
     else:
         print(response.text)
     return False
